@@ -774,9 +774,10 @@ public class DefaultCodegenTest {
         Set<String> oneOf = new TreeSet<String>();
         oneOf.add("Apple");
         oneOf.add("Banana");
+        oneOf.add("Orange");
         Assertions.assertEquals(fruit.oneOf, oneOf);
-        Assertions.assertEquals(fruit.optionalVars.size(), 3);
-        Assertions.assertEquals(fruit.vars.size(), 3);
+        Assertions.assertEquals(fruit.optionalVars.size(), 4);
+        Assertions.assertEquals(fruit.vars.size(), 4);
         // make sure that fruit has the property color
         boolean colorSeen = false;
         for (CodegenProperty cp : fruit.vars) {
