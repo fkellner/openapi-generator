@@ -3484,6 +3484,63 @@ public class JavaClientCodegenTest {
         JavaFileAssert.assertThat(files.get("Type.java")).fileContains("Type implements java.io.Serializable {");
     }
 
+    @Test
+    public void testOneOfThreeVertX() {
+        final Path output = newTempFolder();
+        final String outputPath = output.toString().replace('\\', '/');
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+                .setGeneratorName("java")
+                .setLibrary(VERTX)
+                .setAdditionalProperties(Map.of(CXFServerFeatures.LOAD_TEST_DATA_FROM_FILE, "true"))
+                .setInputSpec("src/test/resources/3_0/oneOf.yaml")
+                .setOutputDir(outputPath);
+
+        final DefaultGenerator generator = new DefaultGenerator();
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODEL_TESTS, "false");
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODEL_DOCS, "false");
+        Map<String, File> files = generator.opts(configurator.toClientOptInput()).generate()
+                .stream().collect(Collectors.toMap(File::getName, Function.identity()));
+
+        // field from fruit
+        JavaFileAssert.assertThat(files.get("Fruit.java")).fileContains("private String color");
+        // field from apple
+        JavaFileAssert.assertThat(files.get("Fruit.java")).fileContains("private String kind");
+        // field from banana
+        JavaFileAssert.assertThat(files.get("Fruit.java")).fileContains("private BigDecimal count");
+        // field from orange
+        JavaFileAssert.assertThat(files.get("Fruit.java")).fileContains("private Boolean sweet");
+    }
+
+    @Test
+    public void testOneOfThreeArrayFieldVertX() {
+        final Path output = newTempFolder();
+        final String outputPath = output.toString().replace('\\', '/');
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+                .setGeneratorName("java")
+                .setLibrary(VERTX)
+                .setAdditionalProperties(Map.of(CXFServerFeatures.LOAD_TEST_DATA_FROM_FILE, "true"))
+                .setInputSpec("src/test/resources/3_0/java/oneOf_inner.yaml")
+                .setOutputDir(outputPath);
+
+        final DefaultGenerator generator = new DefaultGenerator();
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODELS, "true");
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODEL_TESTS, "false");
+        generator.setGeneratorPropertyDefault(CodegenConstants.MODEL_DOCS, "false");
+        Map<String, File> files = generator.opts(configurator.toClientOptInput()).generate()
+                .stream().collect(Collectors.toMap(File::getName, Function.identity()));
+
+        // field from Animal
+        JavaFileAssert.assertThat(files.get("RandomAnimalsResponseAnimalsInner.java"))
+                .fileContains("private String species");
+        JavaFileAssert.assertThat(files.get("RandomAnimalsResponseAnimalsInner.java"))
+                .fileContains("private String dogId");
+        JavaFileAssert.assertThat(files.get("RandomAnimalsResponseAnimalsInner.java"))
+                .fileContains("private String catId");
+        JavaFileAssert.assertThat(files.get("RandomAnimalsResponseAnimalsInner.java"))
+                .fileContains("private String mouseId");
+    }
+
     /**
      * This checks bug issue-20718
      * A situation when schemaMapping is used and oneOf also is used with one of the schema-mapped dataTypes and the dataType
